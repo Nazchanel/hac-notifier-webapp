@@ -1,5 +1,7 @@
 import requests
 import functions
+import colorama
+from colorama import Fore
 
 def main(usr, pswd, dly):
     # Creates a session to maintain credentials
@@ -29,8 +31,16 @@ def main(usr, pswd, dly):
     except:
         class_grades_ = 0
         print("FAILIURE")
-    
-    class_grades = [float(i) for i in class_grades_]
+
+    class_grades = []    
+    for i in class_grades_:
+        try:
+            class_grades.append(float(i))
+        except:
+            print("\n" + Fore.RED + "ERROR: " + Fore.RESET + "Could not convert " + i + " to a float." + "\n")
+            class_grades.append(float(0))
+
+
     
     names_ = []
     grades_ = []

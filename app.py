@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, session
 from return_grades import main
-
+from save_html import returnGradeTables
 username = ""
 password = ""
-
 app = Flask(__name__)
 
 @app.route('/',  methods=['GET', 'POST'])
@@ -28,7 +27,7 @@ def login():
 def index():
     print(f"Student ID: {username}\nPassword: {password}")
     value = main(username, password, .1)
-    
+    returnGradeTables(username=username, password=password)
     class_names = value[0]
     class_grades = value[1]
     update_time = value[2]
