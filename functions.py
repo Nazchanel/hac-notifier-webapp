@@ -3,8 +3,17 @@ from datetime import datetime
 from lxml import html
 from bs4 import BeautifulSoup
 from sys import exit
+import requests
+import pandas as pd
+from colorama import Fore
+import json
 
-
+def clear_files():
+    for i in range(8):
+        name = f"class{i}.html"
+        f = open(f"templates/{name}", "w")
+        f.write("")
+        f.close()
 def isUpdated(a, b):
     try:
         return_value = b.index([x for x in b if x not in a][0])
@@ -18,11 +27,9 @@ def isUpdated(a, b):
 
     return matching, return_value
 
-
 def getTime():
     my_date = datetime.now(pytz.timezone('US/Central'))
     return my_date.strftime("%m/%d/%Y %I:%M:%S %p")
-
 
 def initializeClasses(a, b):
     class1 = 0
@@ -162,11 +169,9 @@ def initializeClasses(a, b):
     return [class_name_1, class_name_2, class_name_3, class_name_4, class_name_5, class_name_6, class_name_7,
             class_name_8], [class1, class2, class3, class4, class5, class6, class7, class8]
 
-
-def login(session_requests, login_url, password, username):
+def login(session_requests, login_url, password, username, quarter):
     urls = "https://hac.friscoisd.org/HomeAccess/Content/Student/Assignments.aspx"
     result = session_requests.get(login_url)
-    print(result)
     tree = html.fromstring(result.text)
     authenticity_token = list(set(tree.xpath("//input[@name='__RequestVerificationToken']/@value")))[0]
 
@@ -183,13 +188,27 @@ def login(session_requests, login_url, password, username):
         headers=dict(referer=login_url)
     )
 
-    result = session_requests.get(urls, headers=dict(referer=urls))
+    if quarter == None:
+        result = session_requests.get(urls, headers=dict(referer=urls))
 
-    soup = BeautifulSoup(result.text, "html.parser")
+        soup = BeautifulSoup(result.text, "html.parser")
 
-    h1 = soup.find_all(class_="sg-header-heading sg-right")
+        h1 = soup.find_all(class_="sg-header-heading sg-right")
 
-    h2 = soup.findAll('a', {"class": ["sg-header-heading"]})
+        h2 = soup.findAll('a', {"class": ["sg-header-heading"]})
+    else:
+        with open(f'static/payloads/{quarter}.json', 'r') as file:
+            json_str = file.read()
+        json_obj = json.loads(json_str)
+
+        specific_quarter = session_requests.post(urls, data=json_obj,headers=dict(referer=urls))
+        
+        soup = BeautifulSoup(specific_quarter.text, "html.parser")
+
+        h1 = soup.find_all(class_="sg-header-heading sg-right")
+
+        h2 = soup.findAll('a', {"class": ["sg-header-heading"]})
+
     return h1, h2
 
 
@@ -212,3 +231,94 @@ def userInput():
     print(spacing)
 
     return username, password, minutes_per_check
+def returnGradeTables(username, password, logged_in, quarter):
+  login_url = 'https://hac.friscoisd.org/HomeAccess/Account/LogOn?ReturnUrl=%2fHomeAccess%2f'
+
+  session_requests = requests.session()
+
+  urls = "https://hac.friscoisd.org/HomeAccess/Content/Student/Assignments.aspx"
+
+  result = session_requests.get(login_url)
+  tree = html.fromstring(result.text)
+  authenticity_token = list(set(tree.xpath("//input[@name='__RequestVerificationToken']/@value")))[0]
+
+  login_payload = {
+      "VerificationOption": "UsernamePassword",
+      "Database": "10",
+      "LogOnDetails.Password": password,
+      "__RequestVerificationToken": authenticity_token,
+      "LogOnDetails.UserName": username
+  }
+
+  # Logs in
+  session_requests.post(login_url, data=login_payload, headers=dict(referer=login_url))
+
+  initial_html = session_requests.get(urls, headers=dict(referer=urls))
+
+  if logged_in:
+    with open(f'static/payloads/{quarter}.json', 'r') as file:
+        json_str = file.read()
+    json_obj = json.loads(json_str)
+
+    specific_quarter = session_requests.post(urls, data=json_obj,headers=dict(referer=urls))
+    df = pd.read_html(specific_quarter.text)
+  else:
+      result = session_requests.get(urls, headers=dict(referer=urls))
+      df = pd.read_html(result.text)
+  
+  index_list = []
+  for i in range(len(df)):
+      if len(df[i].columns) == 10:
+          index_list.append(i)
+  
+  j = 1
+  for i in index_list:
+      name = f"class{j}.html"
+      f = open(f"templates/{name}", "w")
+      f.write(df[i].to_html())
+      f.close()
+      j+=1
+def returnGrades(usr, pswd, dly, quarter):
+# Creates a session to maintain credentials
+    session_requests = requests.session()
+
+    current_time = getTime()
+
+    username = usr
+    password = pswd
+
+    # Will be in use for checking
+    delay = dly
+
+    login_url = 'https://hac.friscoisd.org/HomeAccess/Account/LogOn?ReturnUrl=%2fHomeAccess%2f'
+
+    html = login(session_requests, login_url, password, username, quarter=quarter)
+    grades_html = html[0]
+    name_html = html[1]
+    classes = initializeClasses(grades_html, name_html)
+
+    class_names = classes[0]
+    class_grades = classes[1]
+    try:
+        class_grades_ = [i.replace("%", "") for i in class_grades]
+    except:
+        class_grades_ = 0
+        print("FAILIURE")
+
+    class_grades = []    
+    for i in class_grades_: # type: ignore
+        try:
+            class_grades.append(float(i))
+        except:
+            print("\n" + Fore.RED + "ERROR: " + Fore.RESET + "Could not convert " + i + " to a float." + "\n")
+            class_grades.append(float(0))
+    
+    names_ = []
+    grades_ = []
+
+    for i in range(len(class_names)):
+
+        names_.append(class_names[i])
+        grades_.append(class_grades[i])
+
+    return (names_, grades_, current_time)

@@ -6,20 +6,20 @@
 
 {% block body %}
 <div class="container">
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <div class="nav-wrapper">
-      <div class="left-side">
-          <div class="brand">
-              <div>HAC Notifier</div>
-          </div>
-      </div>
-  </div>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <div class="nav-wrapper">
+        <div class="left-side">
+            <div class="brand">
+                <div>HAC Notifier</div>
+            </div>
+        </div>
     </div>
-    <br>
+</div>
+<br>
 <form class="form" method="POST" action="">
-
+    
     <div class="form-group">
-            <input autocomplete="Login" autocorrect="off" required type="name" name="student_id" id="student_id" class="input-field" autofocus="autofocus" placeholder="Student ID">
+        <input autocomplete="Login" autocorrect="off" required type="name" name="student_id" id="student_id" class="input-field" autofocus="autofocus" placeholder="Student ID">
     </div>
     <br>
     <div class="form-group">
@@ -29,7 +29,7 @@
     <div class="form-group">
         <a href="/grades">  
             <input type="submit" name="submit" class="input-signup" value="Submit"> 
-          </a>
+        </a>
     </div>
     
 </form>
