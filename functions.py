@@ -9,7 +9,7 @@ from colorama import Fore
 import json
 
 def clear_files():
-    for i in range(8):
+    for i in range(9):
         name = f"class{i}.html"
         f = open(f"templates/{name}", "w")
         f.write("")
