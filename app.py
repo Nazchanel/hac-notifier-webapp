@@ -52,7 +52,7 @@ def quarterOne():
     class_grades = value[1]
     update_time = value[2]
 
-    return render_template('test.html',
+    return render_template('grades.html',
                             grade1=class_grades[0],
                            grade2=class_grades[1], grade3=class_grades[2],
                            grade4=class_grades[3], grade5=class_grades[4],
@@ -72,7 +72,7 @@ def quarterTwo():
     class_names = value[0]
     class_grades = value[1]
     update_time = value[2]
-    return render_template('test.html',
+    return render_template('grades.html',
                             grade1=class_grades[0],
                            grade2=class_grades[1], grade3=class_grades[2],
                            grade4=class_grades[3], grade5=class_grades[4],
@@ -93,7 +93,7 @@ def quarterThree():
     class_grades = value[1]
     update_time = value[2]
 
-    return render_template('test.html',
+    return render_template('grades.html',
                             grade1=class_grades[0],
                            grade2=class_grades[1], grade3=class_grades[2],
                            grade4=class_grades[3], grade5=class_grades[4],
@@ -114,7 +114,7 @@ def quarterFour():
     class_grades = value[1]
     update_time = value[2]
 
-    return render_template('test.html',
+    return render_template('grades.html',
                             grade1=class_grades[0],
                            grade2=class_grades[1], grade3=class_grades[2],
                            grade4=class_grades[3], grade5=class_grades[4],
@@ -126,7 +126,7 @@ def quarterFour():
                            class8=class_names[7], time=update_time)
 
 if __name__ == '__main__':
-    print("http://localhost:8080")
-    serve(app, port=8080)
-    # app.run(debug=True, port=8080)
+    # print("http://localhost:8080")
+    # serve(app, port=8080)
+    app.run(debug=True, port=8080)
     functions.clear_files()
