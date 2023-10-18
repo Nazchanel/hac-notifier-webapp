@@ -5,3 +5,4 @@ beautifulsoup4==4.12.2
 pandas==2.1.1
 colorama==0.4.6
 gunicorn==20.0.4
+requests==2.31.0
