@@ -1,0 +1,7 @@
+flask==3.0.0
+pytz==2023.3.post1
+lxml==4.9.3
+beautifulsoup4==4.12.2
+pandas==2.1.1
+colorama==0.4.6
+gunicorn==20.0.4
